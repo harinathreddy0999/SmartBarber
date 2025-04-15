@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  password    String
+  avatar      String?
+  phone       String?
+  memberSince DateTime  @default(now())
+  bookings    Booking[]
+  styles      Style[]
+  reviews     Review[]
+}
+
+model Barber {
+  id          String    @id @default(uuid())
+  name        String
+  avatar      String?
+  bio         String?
+  specialties String[]
+  rating      Float     @default(0)
+  bookings    Booking[]
+  reviews     Review[]
+}
+
+model Service {
+  id          String    @id @default(uuid())
+  name        String
+  duration    String
+  price       Float
+  description String?
+  bookings    Booking[]
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  date      DateTime
+  time      String
+  status    String   @default("upcoming")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  barber    Barber   @relation(fields: [barberId], references: [id])
+  barberId  String
+  service   Service  @relation(fields: [serviceId], references: [id])
+  serviceId String
+}
+
+model Style {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  imageUrl        String
+  tags            String[]
+  suitabilityScore Int?
+  gender          String?
+  faceShape       String?
+  date            DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  date      DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  barber    Barber   @relation(fields: [barberId], references: [id])
+  barberId  String
+}
